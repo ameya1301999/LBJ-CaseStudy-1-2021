@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <title>Login page</title>
+    <style>
+      input[type="text"] {
+        height: 40px;
+        width: 250px;
+      }
+
+      input[type="password"] {
+        height: 40px;
+        width: 250px;
+      }
+
+      input[type="button"] {
+        height: 40px;
+        width: 120px;
+      }
+
+      #imsg {
+        color: #e83f3f;
+        font-weight: bold;
+      }
+    </style>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"
+      integrity="sha256-/H4YS+7aYb9kJ5OKhFYPUjSJdrtV6AeyJOtTkw6X72o="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      window.onload = function () {
+        var usrenc = (document.cookie.match(
+          /^(?:.*;)?\s*username\s*=\s*([^;]+)(?:.*)?$/
+        ) || [, null])[1];
+        var pasenc = (document.cookie.match(
+          /^(?:.*;)?\s*password\s*=\s*([^;]+)(?:.*)?$/
+        ) || [, null])[1];
+        var decryptedusr = CryptoJS.AES.decrypt(usrenc, "Secret Passphrase");
+        var decryptedpass = CryptoJS.AES.decrypt(pasenc, "Secret Passphrase");
+        if (
+          decryptedusr.toString(CryptoJS.enc.Utf8) == "LTI" &&
+          decryptedpass.toString(CryptoJS.enc.Utf8) == "123"
+        ) {
+          window.open("welcome.html");
+        }
+      };
+      function checkform(form) {
+        var getInput = form.userid.value;
+        var getpass = form.pswrd.value;
+        var encryptedusr = CryptoJS.AES.encrypt(getInput, "Secret Passphrase");
+        var encryptedpass = CryptoJS.AES.encrypt(getpass, "Secret Passphrase");
+        localStorage.setItem("store", encryptedusr);
+        localStorage.setItem("pass", encryptedpass);
+        /*the following code checkes whether the entered userid and password are matching*/
+        if (form.userid.value == "LTI" && form.pswrd.value == "123") {
+          window.open(
+            "welcome.html"
+          ); /*opens the target page while Id & password matches*/
+        } else {
+          /*displays error message*/
+          document.getElementById("imsg").innerHTML =
+            "Invalid Username/Password. Try again!";
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <form name="login">
+      <div style="padding-left: 40px; font-family: Arial" id="imsg"></div>
+      <p style="font-size: 20px; font-family: Arial">
+        Username&emsp;<input type="text" name="userid" />
+      </p>
+      <p style="font-size: 20px; font-family: Arial">
+        Password&emsp;&nbsp;<input type="password" name="pswrd" />
+      </p>
+      <p style="font-size: 20px; font-family: Arial">
+        <input type="checkbox" id="check" />Remember me
+      </p>
+      <p style="padding-left: 150px; font-family: Arial">
+        <input type="button" onclick="checkform(this.form)" value="Login" />
+      </p>
+    </form>
+
+    <script>
+      document.getElementById("check").onclick = function () {
+        // access properties using this keyword
+        if (this.checked) {
+          let date = new Date();
+          date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
+          const expires = "expires=" + date.toUTCString();
+          var name = localStorage.getItem("store");
+          var pass = localStorage.getItem("pass");
+          document.cookie = "username=" + name + "; " + expires + "; path=/";
+          document.cookie = "password=" + pass + "; " + expires + "; path=/";
+        } else {
+          // Returns false if not checked
+        }
+      };
+    </script>
+  </body>
+</html>
